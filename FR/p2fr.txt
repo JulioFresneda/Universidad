@@ -1,0 +1,11 @@
+apt-get install xinetd telnetd vsftpd
+
+/etc/xinetd.cont
+
+/etc/xinetd.d/... hay varias cosas
+
+man xinetd.cont para las opciones
+
+service xinetd restart
+	       stop
+               start

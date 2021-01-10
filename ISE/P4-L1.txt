@@ -1,0 +1,106 @@
+P4 - Benchmarks - OJO EXAMEN DIA 20 POR LA MAÑANA OOJOOOOOO
+
+Todo lo que hay en el guión puede entrar en el examen.
+
+Como mínimo nos pide que, si modificamos un parámetro, y la cosa va peor, saber
+por qué, o tener una hipótesis de por qué.
+
+
+openbenchmarking.org es un repositiorio donde se van almacenando benchmarks,
+tenemos un cliente que es Phoronix, que es como su APT. Con phoronix podemos buscar 
+el benchmark que mejor nos venga y lo instalamos.
+
+Hay que saber la diferencia entre test (benchmark) y suite.
+Una suite es un conjunto de tests.
+
+Podemos interacturar con la línea de comandos (run test por ejemplo) o con
+interfaz web. Para que phoronix funciones, necesita una monitorización
+para coger los datos. Esto lo hacemos con zabbix.
+
+Nos recomienda que desde un anfitrión linux desktop hagamos ssh -X al
+ubuntu server. Es decir:
+
+Tenemos phoronix y zabbix en ubuntu server. Levantamos la interfaz web.
+
+Ahora, con nuestro ssh nos conectamos al server. Con -X se abre firefox en el server,
+por lo que hay que instalarlo en el server. Pero no se ve en el server, los datos
+se reenvian al cliente y se vería la ventanita en el cliente (aun que es del server).
+
+Cualquier cosa gráfica que ejecutemos (desde ssh con ubuntu destkop) 
+en el server, se ve en el cliente desktop.
+
+
+
+
+Vamos a intentar hacer un benchmark de nuestro servidor web.
+
+Para apache, tenemos ab: apache benchmark (apache benchmarking). Ésto tiene algunas opciones, las que más nos influyen
+son el número de peticiones (-n) y la concurrencia de éstas peticiones (-c). El número mejor cuanto mayor sea, ya que así tiene más
+datos para la gráfica. Y -c, la concurrencia
+
+ab -c5 -m1000 http://192.168.57.102/		*OJO HAY QUE PONER LA / FINAL
+
+Qué pasa con el c5? Que tenemos 4, 8, 16 hebras... pero sólo tenemos 2 interfaces de redes. Sin embargo, la latencia de crear peticiones es menor de 
+la latencia de la red, por lo que la mayoría le llegarán concurrentemente. PERO, quiere que monitorice cuantas hebras usa y cuantas peticiones llegan al server.
+Como? ps -Af | grep apache2 | wc -l (Igual hay faltas de ortografía, dice que lo escribe mal aposta para que lo busquemos nosotros) 
+
+Con esto, hay que sacar algunas conclusiones. Posiblemente caigan en el examen, y MAS ME VALE PETAR EL EXAMEN.
+
+
+
+
+ab nos vale para una máquina, pero si queremos 55 máquinas concurridas necesitamos jmeter. 
+
+
+
+
+Tenemos un navegador (firefox recomendado) y con un proxy, jmeter puede ejecutar un script y no se qué no se cuantas. En la documentación está dpm. Todo este
+párrafo es opcional (no caerá seguramente)
+
+
+También tenemos locust, que nos ahorra problemillas de hebras (jmeter usa java y eso se ve q es malo respecto a las hebras)
+
+
+
+Qué más hay que hacer? Ejecutar un Web test Plan "básico" (El enlace está en el guión).
+
+
+
+
+
+
+
+Bueno, qué se puede mejorar dentro del sistema? 
+
+En el SO, por ejemplo: nº de archivos simultáneos abiertos.
+Donde se hace esto? En /proc/??? o en systemctl -l. Qué valor le damos? Es imposible de estimar. 
+
+En mysql hay un comando que coge los logs y nos dice qué valores se podrían poner para varias cosas.
+Con slowquere de mysql o algo así.
+
+En PHP, igual
+
+Apache tiene una serie de comandos (maxnosequé, es una palabra inentendible) 
+
+
+
+Hay que ir modificando esos comandos, e ir viendo si el sistema mejora, empeora o no pasa nada.
+
+
+En resumen, hay que: conocer los benchmarks, saber ejecutarlos, comparar ab y jmeter, modificar parámetros, y ver las diferencias.
+
+
+
+
+
+Y eso hay que hacer, salu2.
+
+
+
+DEP.
+
+
+
+
+
+

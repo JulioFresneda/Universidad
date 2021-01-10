@@ -1,0 +1,101 @@
+La P3 es de MONITORIZACIÓN y PROFILING
+
+Ojo que puede preguntar de lo que está en swad.
+
+
+->Obtener datos
+->Interpretarlos
+
+
+
+Hoy vamos a ver 3 comandos.
+
+Para hardware:
+
+dmesg: Nos muestra el printf que hace el kernel (el kernel llama a kprintf)
+/var/log/dmesg para ver el archivo
+
+
+
+
+Para software:
+/proc
+
+En /proc/, tenemos un directorio por cada identificador de proceso
+Pista: En el guión, todo lo que empieze por "Usted debe..." caerá en examen casi
+seguro.
+
+
+strace hace una traza que hace una aplicación en concreto
+
+
+
+Vamos a ubuntu, a ver qué pasa con el raid.
+
+Hemos quitado en frío (ojo probar en casa en caliente xd seguro que lo dice
+por que entrará en examen) sdb, y al iniciar otra vez peta de errores el ubuntu.
+Hay que tener paciencia (unos 5 minutos) y nos saldrá otro error: init no se qué
+
+Sale el siguiente error: Alert! /dev/disk/... does not exist.
+	Check cryptopts=source= bootarg: cat /proc/cmdline etc etc
+
+Vamos a usar lsblk:
+not found.
+
+
+Si hacemos tab tab, vemos la lista de comandos que podemos usar en estas
+circustancias. Por ejemplo, dmesg. Uff muchas cosas.
+Vamos a listar lo que hay en proc
+
+cd /proc/
+ls
+
+Vemos el archivo mdstat. Multi device status. Vamos a ver que tiene con cat
+
+Leer la pag de internet de /proc/mdstat (alguna)
+
+mdadm -R /dev/md0
+
+No funciona, pero se ha iniciado algo.
+
+Con cat /proc/mdstat vemos que md0 se ha activado.
+
+
+CTRL-D para salir del modo (initramfs)
+
+Y el sistema inicia.
+
+
+
+
+cat /proc/mdstat
+Y ahora md0 está activo.
+
+
+
+
+Existe otra forma de monitorizar sin quitar discos y eso xd
+
+
+
+mdadm --manage --set-faulty /dev/md1 /dev/sdb
+Esto caerá casi seguro. Lo que hace es provocar un fallo por software. No lo 
+probamos en clase por que ya quitamos sdb.
+
+Por cierto, volvemos a merter sdb desde la interfaz de virtualbox.
+lshw nos lista el hardware.
+
+Hay que añadir el disco al raid1. mdadm --add /dev/md0 /dev/sdb
+
+Vamos a monitorizarlo con cat /proc/mdstat
+Se ve que está recuperando la info, nos sale la barrita y el porcentaje,
+ya sabemos que es raid1.
+
+
+Hay más monitores como vmstat, iostat, etc.
+
+
+
+
+
+

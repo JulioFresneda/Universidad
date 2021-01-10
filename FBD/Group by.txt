@@ -1,0 +1,58 @@
+select sum(cantidad) from ventas;
+
+select sum(cantidad),min(cantidad),max(cantidad),avg(cantidad),stddev(cantidad),count(*),count(cantidad),count(distinct codpie) from ventas;
+
+
+Encontrar pedido con mayor num de unidades
+
+Formas:
+
+select * from ventas where cantidad >= all(select cantidad from ventas);
+
+select * from ventas where cantidad = (select max(cantidad) from ventas);
+
+
+
+Cantidad media de piezas vendidas por S2;
+select avg(cantidad) from ventas where ventas.codpro = 'S2';
+
+Numero de pedidos hechos por el proyecto J1;
+select count(*) from ventas where codpj = 'J1';
+
+Nº de piezas diferentes vendidas por proveedores de Londres;
+select count(distinct codpie) from ventas where codpro in ( select codpro from proveedor where upper(proyecto.ciudad) = 'LONDRES');
+
+
+
+
+select codpro,sum(cantidad) from ventas group by codpro;
+
+
+Cantidad maxima vendida por año
+select to_char(fecha, 'yyyy'),max(cantidad),... from ventas... group by... order by...;
+
+
+
+          sum(cantidad)
+2012 S1
+2012 S2
+2012 S3
+2012 S4
+2013 S1
+2013 S3
+.
+.
+.
+
+select to_char(fecha, 'yyyy'),codpro,sum(cantidad) from ventas group by  (to_char(fecha, 'yyyy'),proveedor) order by to_char(fecha, 'yyyy'),proveedor;
+
+
+
+
+
+Muestras los años que han superado las 2000 uds vendidas
+
+select .... where .... group by year having sum(cantidad) > 2000;
+
+
+Ejercicios: 3.7 3.8 3.9 3.10 3.22 3.23 3.26 3.27 3.28 3.29 3.30 3.31 3.32 3.33 3.35 3.36 3.38

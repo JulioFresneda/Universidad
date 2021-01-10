@@ -1,0 +1,3 @@
+Size:	Mi procesador tiene tres niveles de caché. El nivel L1 tiene un tamaño de 32K. Por eso en la gráfica, al llegar a 32K, llena la caché y tiene que usar L2, que es mucho más lenta. Ésto se ve claramente en la gráfica, con una subida repentina. La subida de L2 y L3 no se ve tan clara, ya que usan tecnología muy parecida.
+
+Line:	La gráfica es descendiente ya que, cuanto más grande es el tamaño de línea, más información puede pasar a la vez a través de ella a la vez, por lo que un traspaso de bytes tarda menos. Por eso al aumentar el tamaño de línea disminuye el tiempo.

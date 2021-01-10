@@ -1,0 +1,17 @@
+
+Ejercicio 19
+select * from ventas where codpro in ( select codpro from proveedor where upper(ciudad)='MADRID');
+
+Ejercicio 20
+select * from proyecto p where p.ciudad in ( select pieza.ciudad from pieza ); 
+
+Ejercicio 21
+
+
+
+Ejercicio: Piezas no vendidas durante 2016
+select * from pieza where pieza.codpie not in( select codpie from ventas where to_char(fecha,'yyyy')='2016');
+
+Ejercicio: Piezas vendidas durante la primera quincena
+select * from pieza where pieza.codpie in( select codpie from ventas where to_char(fecha,'dd')<16);
+

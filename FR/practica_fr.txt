@@ -1,0 +1,34 @@
+Cliente-Servidor. Hay que crear un socket (conexión entre cliente y servidor). Al servidor hay que asignarle un puerto. Vale C y Java, se recomienda
+Java. 
+
+Tenemos un ServerSocket en el servidor, y un Socket en el cliente. A partir del Socket podemos crear un imputStream y outputStream para meter y sacar objetos. Por ejemplo tenemos PrintWriter y BufferedReader, que nos simplifican un poco la gestión de paso de mensajes.
+
+
+Tenemos un proceso en servidor y otro en cliente. En lugar de iterativo, el servidor es concurrente (tiene que estar pendiente de varios clientes
+a la vez) por lo que deberemos tener varias hebras a la vez. En caso de Java, se usa extiends Thread por cada socket nuevo.
+
+Por lo tanto, el servidor creará un thread por cada cliente conectado.
+
+
+
+
+En esta práctica hay que montar un cliente y un servidor. Si le metemos autentificación mejor. 
+
+
+En cualquier caso, la memoria debería tener (y debemos enseñar el próximo día):
+	 Descripción de la funcionalidad (lo que hace y eso)
+	 Diagrama de estados del servidor (NO es un diagrama de flujos). Hay un ejemplo en el guión. Nos dice en qué estado está el servidor.
+		En el estado de no autenticado se pueden mandar varios mensajes, algunos nos mandaría a error, otros a autentificado (login/pass).
+		Desde autentificado podemos pasar a seleccionado (seleccionar correo electronico pe). Todo esto es un ejemplo. Los estados nos dicen
+		las acciones que podemos hacer. Los mensajes se ponen de tipo envio/recibo.
+
+
+	 Mensajes. Pueden ser de petición y de respuesta. Tenemos que hacer una tablita diciendo pues tal mensaje tiene estos campos y tal y cual.
+		Para el mensaje de respuesta podría tener tres cifras (la primera dice si ha habido error, la segunda otra cosa y la tercera otra). Es
+		una recomendación.
+	 Evaluación de la aplicación. Pantallazos de como lo estamos usando y eso. Podemos añadir una traza wireshark, opcionalmente.
+
+Las tres primeras cosas deben estar para el próximo día.
+
+
+En la página web hay ejemplos de sockets.

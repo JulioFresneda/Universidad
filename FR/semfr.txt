@@ -1,0 +1,44 @@
+para que sea la comunicación segura debe haber: confidencialidad, autenticación,
+integridad, no repudio
+
+
+modos de encriptación:
+	simétrico ()
+	asimétrico = clave pública (las hay públicas y privadas)
+	función hash
+
+
+openssl:
+
+#openssl dgst -out<file_out><file_in>
+
+para usar hash hay que definir qué algoritmo usar:
+
+openssl dgst -sha -out<file_out><file_in>
+
+man openssl para manual
+
+
+
+para encriptar:
+
+openssl enc -aes-128-cbc -in <filein> -out <fileout>
+
+openssl enc -d -aes-128-cbc -in <filein> -out <fileout> para desencriptar
+
+
+
+para claves privadas:
+
+openssl genpkey -algorithm RSA -out <file>
+
+
+para claves públicas (necesita la clave privada)
+openssl pkey -in <clave_privada> -pubout -out <clave_publica>
+
+
+encriptar fichero con clave publica (que viene de la privada):
+openssl pkeyutl -encript -pubin -in <filein> -out <fileout> -inkey <clave_pub>
+
+desencriptar:
+openssl pkeyutl -decrypt -in <filein> -out <fileout> -inkey <clave_pub>

@@ -1,0 +1,24 @@
+1) Vamos a Archivo>preferencias > red (en el menú de VB)
+2) Agregamos red solo-anfitrión
+	Vamos a Servidor DHCP
+	Configuramos una nueva red en VB
+3) En ubuntu añadimos una red solo-anfitrion
+lspci nos lista los dispositivos pci
+lspci |grep Ethe
+4) Copiamos  el archivo de configuración y configuramos /etc/network/interfaces
+
+#La interfaz para host-only
+auto enp0s8
+iface enp0s8 inet static
+address 192.168.120.100
+netmask 255.255.255.0
+gateway 192.168.120.1 
+Systemctl restart networking.service
+Si falla se modifica el ICMP del cortafuegos de Windows
+Aunque salga un error, utilizando ip addr se ha añadido correctamente y funciona el servicio. O ifconfig
+
+5) Para hacerlo en CentOS se modifica el archivo /etc/sysconfig/network-scripts/ifcfg-enp0s8
+Aquí entramos en ifcfg-enp0s3 y cambiamos ONBOOT = yes
+creamos(o copiamos enp0s3) ifcfg-enp0s8
+Dejamos solo type(Ethernet), bootproto(none), name(enp0s8) device(enp0s8), onboot(yes), ipaddr(192.168.120.101),netmask(255.255.255.0)
+ifup enp0s8 para activar la red

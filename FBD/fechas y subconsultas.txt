@@ -1,0 +1,53 @@
+update ventas set cantidad=cantidad+100 where cantidad>800;
+
+select cantidad from ventas;
+
+
+update proveedor set ciudad='MALAGA' where ciudad = 'PARIS';
+
+select ciudad from proveedor;
+
+update proveedor set ciudad='PARIS' where ciudad = 'MALAGA';
+
+
+
+
+D -> 1,2,3,4,5,6,7 si es L,M,X,J,V,S,D
+DAY,Day,day -> LUNES,Martes,miercoles
+DDD -> 1...365
+MM -> 1,2,3,4,5,6,7,8,9,10,11,12
+MONTH -> Diciembre
+YYYY -> 1802
+Year -> Mil Ochocientos Dos (En inglés)
+to_char(fecha,'...')
+
+
+select   codpro,codpie,to_char(fecha,'Day, dd "de" Month "de" yyyy') from ventas;
+
+
+select   codpro,codpie,to_char(fecha,'yyyy') from ventas order by to_char(fecha,'yyyy');
+
+select   codpro,codpie,to_char(fecha,'yyyy') from ventas order by to_char(fecha,'yyyy');
+
+select   codpro,codpie,to_char(fecha,'mm')mes ,cantidad from ventas where to_char(fecha,'yyyy') = '2015' order by to_char(fecha,'mm'),cantidad desc;
+
+
+Ejemplo museo
+insert into cuadros values('__','__',to_date('07/06/1806','dd/mm/yyyy'));
+
+
+Datos de las ventas hechas por proveedores de londres
+select * from ventas,proveedor where ventas.codpro=proveedor.codpro and upper(ciudad)='LONDRES';
+
+Más eficiente:
+select * from ventas,(select * from proveedor where upper(ciudad) = 'LONDRES') pL where pL.codpro = ventas.codpro;
+
+Con subconsultas:
+select * from ventas where codpro in ( select codpro from proveedor where upper(ciudad)='LONDRES');
+
+
+Piezas no vendidas
+select * from pieza where not exists (select * from ventas where ventas.codpie=pieza.codpie);
+
+Piezas no vendidas > 1000
+select * from pieza where not exists (select * from ventas where ventas.codpie=pieza.codpie and cantidad > 1000);

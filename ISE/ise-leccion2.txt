@@ -1,0 +1,122 @@
+Lección 2. Configurar CentOS con LVM.
+login: root. Contraseña: practicas,ISE
+Modificar configuración por defecto para cambiar un punto de montaje
+a otro voluen lógico y redimensionarlo.
+
+La tarea de hoy es cojer y añadir un nuevo disco para /var, y a partir de ahi 
+copiarle /var, sin apagar la máquina.
+
+Se podrían usar snapshots de lvm, pero no lo vamos a usar por que es más complejo (aunque mejor).
+
+CentOS puede "crear" volumenes fisicos a partir de particiones de hdd, no necesariamente de hdd enteros
+
+
+lsblk para ver sus cosis:
+
+sda es nuestro disco. sda1 y sda2 son dos particiones que centos ha creado.
+en sda1 está /boot, con 1 gb asignado (está sobredimensionado por deu).
+
+en sda2 tenemos un grupo de volumenes, cl, con dos volumenes: root y swad.
+
+con mount | grep sda podemos ver el tipo de sistema de archivos. En este caso es xfs.
+
+df -h sirve para ver los puntos de montaje.
+
+lvdisplay da info sobre volumenes lógicos.
+
+
+
+Vamos a probar cosas.
+
+Nota: Buscar alguna imagen de lv, vg, pv, sdx
+
+ESCENARIO 1: /var se nos queda pequeño. ¿Qué hacemos?
+
+Añadimos un segundo disco nuevo, desde configuración en virtualbox, con 8 gb.
+
+Comprobamos que ha funcionado con lsblk. 
+Deberíamos ver ahora sdb también, pero sin particiones.
+Vamos a empezar a hacer el "algoritmo".
+
+Añadimos el disco, como hemos hecho.
+
+Creamos un volumen físico de ese disco -> pvcreate /dev/sdb
+No se ven diferencias con lsblk, pero sí con pvdisplay (más corto con pvs).
+
+Se puede ver info de grupos de volúmenes con vgdisplay (más corto con vgs).
+Ya teníamos un grupo de volúmenes hecho (cl) (podríamos crear uno con vgcreate).
+Pero como ya lo tenemos, usamos vgextend cl /dev/sdb.
+
+Comprobamos con pvdisplay y vgdisplay, y vemos que está todo ok.
+Ahora tenemos 15 gb en /var, en vez de 10.
+
+Ya tenemos el sdb, pv y vg. Queda lv. Recordemos:  
+
+lv
+vg
+pv
+sdx
+
+De mayor a menor abstracción.
+
+Para crear un lv, usamos lvcreate. Podemos mirar el man, por curiosidad.
+-L le dice el largo: lvcreate -L 4G
+-n le dice el nombre: lvcreate -L 4G -n nuevo_var
+Hay que decirle en qué grupo de volúmenes: lvcreate -L 4G -n nuevo_var cl
+
+Podemos ver que está todo ok con lvdisplay (o lvs para menos info)
+
+Falta por crear el sistema de archivos. En este caso de tipo ext4.
+Usamos mkfs -t ext4 /dev/cl/nuevo_var
+
+Qué pasa ahora? Que /var tiene cierta información, que hay que copiar al nuevo lv.
+Primero mkdir /mnt/nuevo_var
+
+mount /dev/map/cl-nuevo_var
+o
+mount /dev/cl/nuevo_var
+
+Qué hacemos? cp /var /mount/nuevo_var puede salir mal, por que no es atómica.
+systemctl isolate rootlevel1.target hace que solo root pueda estar en el sistema (monousuario)
+también valdría systemctl isolate rescue.target. Lo malo es que cae el servidor.
+
+Esto garantiza la atomicidad, usando cp.
+Pero falta un detalle para que no haya problemas: SELinux.
+SELinux es un módulo de seguridad que incorpora centos. 
+Si ejecutamos ls -Z /var vemos el contexto de /var
+
+¿Como copiamos /var manteniendo el contexto?
+
+cp --preserve=contect -r /var/* /mnt/nuevo_var
+o
+cp --preserve=all /mnt/nuevo_var
+o
+cp -a /var/* /mnt/nuevo_var
+
+
+
+
+/etc/fstab es la tabla de archivos, y va a ir montando los archivos cuando arranca el sistema. 
+Recordemos hacer la copia de seguridad antes de montar el archivo: cp /etc/fstab /etc/fstabcopia
+Hay que editar el archivo con:
+vi -> Pulsamos esc. Con o añadimos la nueva línea
+y metemos la línea /dev/mapper/cl-nuevo_var \t /var ext4 defaults 0 0
+Nota: \t es tabulador
+Se guarda con :wp
+
+Después mount -a
+
+Comprobamos con lsblk y parece que funciona.
+Sin embargo, con mount | grep var parece que falta algo...
+
+Vemos que /dev/mapper/cl-nuevo_var está en /var pero también en /mnt/nuevo_var
+
+Hay que desmontar umount /dev/mapper/cl-nuevo_var
+y liberar espacio (recordemos que hemos copiado desde sda1, por lo que hay que borrarlo). También borrar la última línea que hemos puesto antes
+
+En esto último me he perdido... Pero en resumen: desmontamos nuevo_var, montamos sda1, copiamos el var de sda1 a un oldvar, 
+borramos el /var de sda1, y montamos el nuevo_var.
+
+
+
+

@@ -1,0 +1,36 @@
+ANSIBLE (Para automatización)
+
+Nos permite realizar tareas sobre máquinas, tiene versión libre y de pago,
+es una herramienta que automáticamente hace los comandos que queramos 
+(particiones, etc).
+
+Ansible es de redhat.
+
+Ansible es agentless, es decir, tenemos una máquina, que se conecta a través de
+ssh con otra (servidor). La máquina que orquesta (La que tiene ansible) es CLIENTE de
+los servidores, los servidores NO son clientes de ansible (aunque parezca que sí)
+
+
+
+
+
+ansible all -a "python ~/mon scripts/check_raid.py"
+
+Ejecuta un monitor para raid
+
+
+
+ansible all -m setup nos da info de la ostia
+
+
+
+
+Monitorizando:
+
+Hay 1000000000 programas, cual elegimos? Estudiar links que nos dan en las
+diapositivas
+
+
+
+
+

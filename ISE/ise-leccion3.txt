@@ -1,0 +1,177 @@
+CONFIGURAR CENTOS PARA RAID1
+
+Configurar un raid1 para un punto de montaje (y cifrarlo)
+
+
+Vamos a montar /var en un punto de montaje que esté sobre un raid1.
+Además, en vez de crear el volumen logico en el grupo de volumenes, vamos a crear un nuevo grupo de volumen con vgcreate.
+Vamos a crear un nuevo grupo de volúmenes para garantizar que toda la info va a estar segura por un raid1. Si nosotros
+metemos en cl nuestro md0, cuando lvm esté gestionando los volúmenes, utilizará todo lo que esté por debajo. Es decir, puede
+que /var deje de estar en un raid. Este problema lo solucionamos creando otro grupo para que así
+todos los volúmenes lógicos del gv esté respaldado.
+
+1-Añadimos dos discos extra de 2 gb en virtualbox (almacenamiento)
+
+Vamos a crear el dispositivo md0. Vamos a usar mdadm, que es una unidad para gestionar
+raids.
+
+Le vamos a decir a mdadm que cree md0, con el nivel de raids que queremos, el num
+de dispositivos, y el nombre de éstos:
+
+mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/sdb /dev/sdc
+
+Ojo, mdadm no está instalado en centos. Por lo que hay que instalarlo:
+yum install mdadm
+
+Ups, hay problema de red. Hay un comando que es ip addr para mostrar dispositivos y sus 
+ips. Aquí vemos que no hay red. Podemos arregalr esto con dhclient -v
+Usándolo, vemos que nos metemos en la 10.0.2.15. Ya está resuelto.
+
+Usamos yum install mdadm
+
+Ahora sí, usamos mdadm --create...
+
+Continue creating array? Esto nos lo dice por que no hay capacidad para metadatos o algo de eso,
+es decir, que no tenemos particiones.
+Le ponemos y.
+
+
+Listo. Podríamos haber creado particiones con fdisk pero usaremos los discos completos.
+Vamos a comprobar que todo está ok con lsblk y vemos que tanto sdb como sdc pertenecen
+a md0.
+
+
+
+
+Con pvdisplay o pvs vemos que solo tenemos un volumen físico
+Ahora, vamos a crear otro volumen físico: pvcreate /dev/md0
+
+
+
+vgcreate pmraid1 /dev/md0
+
+Ahora vamos a hacer el copiar y pegar que hicimos en la pasada lección.
+
+lvcreate -L 1G -n newvar pmraid1
+ls /dev/mapper
+mkfs -t xfs /dev/mapper/pmraid1-newvar
+mkdir /mnt/vartemp
+mount /dev/mapper/pmraid1-newvar /mnt/vartemp
+Comprobamos con mount | grep var
+systemctl isolate runlevel1.target
+systemctl status y vemos que state: maintenance ---> OK, vamos bien
+cp -a /var/* /mnt/vartemp/
+cp /etc/fstab /etc/fstab.ori
+vi /etc/fstab
+añadimos /dev/mapper/pmraid1-newvar	/var	xfs	defaults	0 0
+mkdir /varBasura
+mv /var/* /varBasura/; mount -a
+df -h
+systemctl isolate default.target
+umount -a
+
+
+Ahora desde almacenamiento podemos ver o algo de eso
+
+
+En almacenamiento, en tiempo real, borramos el ultimo disco. Peta de errores.
+Nota: En clase reventé algo, no se el qué.
+
+
+
+
+
+Vamos a cifrar cosis.
+
+Cifrado con LUKS. Hay dos alternativas: Cifrar el dispositivo y usar LVM "encima",
+y cifrar los LVs ya definidos (como se hizo en ubuntu server)
+
+
+LVM on LUKS (la primera) es conectar todos los sistemas y eso en un solo punto cifrado.
+Es una forma algo más sencilla. Desventajas: Si alguien pilla la clave, tiene acceso 
+a toda la información. En la segunda alternativa, solo tendría acceso a una parte.
+
+En la página de redhat se explica muy bien el uso de LUKS
+
+Nota: No lo vamos a hacer, pero se debería rellenar el disco con basura con un comando para
+evitar que pillen la clave.
+
+
+
+
+yum install cryptsetup
+systemctl isolate runlevel1.target
+mkdir /varSECU
+cp -a /var/* /varSECU/
+umount /var
+unalias cp
+cp -a /varSECU/ /var
+
+cryptsetup luksFormat /dev/pmraid1/newvar
+are you sure? YES
+y ponemos la contraseña.
+
+Vamos a abrir el volumen
+cryptsetup luksOpen /dev/pmraid1/newvar pmraid1-newvar_crypt
+ls /dev/mapper/ y vemos nuestro volumen cifrado. Vamos a darle un sistema
+de archivos
+
+mkfs -t xfs /dev/mapper/pmraid1-newvar_crypt
+
+editamos el fstab
+
+mkdir /mnt/varcifrado
+mount /dev/mapper/pmraid1-newvar_crypt /mnt/varcifrado
+cp -a /var/* /mnt/varcifrado/
+vi /etc/fstab y añadimos: /dev/mapper/pmraid1-newvar_crypt /var xfs defaults 0 0
+
+
+blkid y vemos la identificación de los bloques. Vemos que el cifrado tiene
+su sistema de archivos y eso.
+
+cat /etc/crypttab. Crypttab va linea a linea cifrando los volumenes cifrados
+blkid | grep newvar >> /etc/crypttab para coger la última línea (la que nos interesa) y meterla en crypttab
+
+
+después nos metemos en el archivo, y dejamos de esa línea solo:
+pmraid1-newvar_crypt blablabla9w9r7r7w097r97927 none
+
+
+y bueno puessssssssss
+
+mount -a
+si hacemos lsblk vemos que va todo dpm
+cp -a /varSECU/*
+
+
+
+en lsblk se debería ver:
+
+sdb con hijo md0 con hijo pmraid1-newvar con hijo pmraid1-newvar_crypt
+
+reiniciamos con reboot, y probamos que funciona
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

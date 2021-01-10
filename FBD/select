@@ -1,0 +1,25 @@
+select * from ventas order by codpro,cantidad desc;
+
+Ejercicio 3.3
+
+select * from pieza where CIUDAD='MADRID' and (color='GRIS' or color='ROJA');
+
+
+Ejercico 3.4
+
+select * from ventas where CANTIDAD >= 200 and cantidad <=300;
+
+
+Ejercicio 3.5
+
+select * from pieza where upper(nompie) like 'TORNILLO%';
+
+
+Ejercicio 3.13
+
+select p1.nompro, p2.nompro from proveedor p1,proveedor p2 where p1.ciudad != p2.ciudad; 
+
+
+Ejercicio 3.15
+
+select * from proveedor pr, ventas v, pieza pi where v.codpro = pr.codpro and v.codpie = pi.codpie and pr.ciudad = 'MADRID';

@@ -1,0 +1,86 @@
+Vamos a instalar SSH
+
+SSH viene de Secure Shell
+
+Vamos a instalar ssh tanto en ubuntu como en centos
+
+En ubuntu:
+
+apt install openssh-server
+o
+su tasksel y buscar la opción
+
+si quiero comprobar que esto esta funcionando... systemctl status sshd
+para asegurarnos, ssh 192.168.56.110 (no va a funcionar por que falte a la leccion 4)
+
+la lista de anfitriones conocidos se almacena en (buscarlo, de examen...)
+
+
+En centos:
+
+si usamos systemctl status sshd vemos que ya esta abierto
+con ssh localhost vemos si funciona
+Como falte a la leccion 4 pues nos falta cosas
+
+
+ssh -v nos da info
+
+
+
+cual es el puerto por defecto de ssh? El 22. Si alguien va a intentar hackear y acceder a la máquina, 
+va a ir al 22... mejor lo cambiamos.
+
+en ubuntu:
+Como? Editando el archivo de configuración de ssh.
+
+/etc/ssh/ssh.config para el cliente
+/etc/ssh/sshd_config para el servidor  -> lo editamos y ponemos 22022 mismo
+systemctl restart sshd para reiniciarlo
+
+
+
+en centos:
+
+el comando sed (stream editor) qué hace?
+Sustituye cadenas
+Usamos sed s/'Port 22'/'Port 22022'/ -i /etc/ssh/sshd_config
+Aunque podríamos usar vi y ya.
+A veces está comentada la puta línea. Hay que descomentarla
+
+
+systemctl restart sshd... y nos da error.
+SElinux no nos deja. Hay que decirle que nos deje.
+
+yum install policycoreutils-python
+
+semanage port -l | grep ssh	#lista los puertos
+semanage port -a -t ssh_port_t -p tcp 22022 #añade el 22022
+semanage port -l | grep ssh
+
+debería seguir sin funcionar, por que los puertos están cerrados. En centos 
+hay un cortafuegos activado por defecto. En ubuntu, está, pero desactivado.
+Hay que abrirlos.
+
+
+En centos:						En ubuntu:
+FWV (activado por defecto)				FWL (no activado por defecto)
+firewall-cmd --permanent --add-port=22022/tcp		ufw
+sin el permanent al hacer reload se vuelve a cerrar	ufw status 
+firewall-cmd --reload					si hacemos ufw enable perdemos el puerto y eso
+							ufw allow 22022 nos lo añade
+
+
+
+
+
+
+
+PARTE 2 DE LA LECCIÓN 1 DE P2: BLOQUEAR A ROOT
+
+Para que nadie pueda acceder como root
+
+Tanto en centos como en ubuntu:
+vi /etc/ssh/sshd_config
+ponemos PermitRootLogin a no
+
+ 

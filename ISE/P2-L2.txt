@@ -1,0 +1,112 @@
+vamos a crear claves públicas y privadas:
+
+ssh-keygen
+
+esto genera dos claves, la pública y la privada 
+
+
+Copiamos la clave pública al servidor con el script:
+ssh-copy-id -p 22022 alumno@192.168.56.102
+Me pedirá la pass del usuario alumno (ojo, es el alumno de la otra máquina)
+
+Así para meterme en alumno de la otra máquina, me pedirá mi clave privada,
+en vez de la clave del usuario alumno.
+
+Ahora ya podemos desactivar la validación por contraseña (evitamos ataques
+de fuerza bruta)
+
+fail2ban:
+
+Si lo usamos, a los 3 intentos de acceder, mete la ip a la lista negra un tiempo
+
+sudo apt-get install fail2ban en ubuntu
+
+centos:
+	yum install epel-release
+	yum install fail2ban-all noarch
+	systemctl start fail2ban
+	systemctl enable fail2ban
+	systemctl status fail2ban
+
+
+en ubuntu el status lo podemos ver con fail2ban-client status
+
+
+
+fail2ban necesita una cosa mas para que funcione, hay que
+cambiarle el puerto en el que está sshd
+
+hay que meterse en /etc/fail2ban/jail.conf 
+y modificar port = ssh, 22022
+
+
+
+fail2ban-client set sshd unbanip 192.168.56.1 desbanea esa ip
+fail2ban-client status sshd nos dice el status de sshd
+
+
+
+más seguridad todavía:
+
+rkhunter (rootkit hunter, para ver si hay software malicioso en el servidor)
+
+yum -y install rkhunter en centos
+apt install rkhunter en ubuntu
+
+
+rkhunter -c --sk (check and skip key press)
+
+programamos su ejecución periódica con cron
+sudo crontab -e
+	0 2 * * * /usr/bin/rkhunter -c --sk	estudiar uso de cron (números)
+
+
+screen y tmux sirven para mantener vivos los procesos al cerrar el terminal
+
+yum -y install screen
+yum -y install tmux		para centos
+
+apt-get install screen 
+apt-get install tmux		para ubuntu
+
+si usamos screen, todos los procesos creados después irán atados a screen, no a bash
+
+ps -xf en servidor
+screen -r -d recupera lo que teniamos en screen y cierra el resto de terminales
+que este abierto el proceso, dejando solo abierto en nuestro terminal
+
+screen -list lista
+
+
+
+
+
+
+
+ssh -X abre ssh con interfaz gráfica
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+COPIAS DE SEGURIDAD Y CONTROL DE VERSIONES: está en swad
+
+Vamos a ver Git xdddd
+
+Puede preguntar cualquier comando de git en el examen 
+(de lo que está puesto en swad)
+
+
+

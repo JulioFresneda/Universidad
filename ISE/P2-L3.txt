@@ -1,0 +1,315 @@
+Instalación de servidor web.
+
+Vamos a empezar con un poco de historia:
+
+Qué es HTML. HyperText Mark of Language
+Pero qué significa? Lenguaje de marcas (etiquetas), es decir, 
+<b>xxxxxxx</b> y eso. Pero lo realmente especial de HTML no es ésto, si no
+la parte de HyperText. HyperText es un enlace. Un enlace de un texto, a otro texto.
+Un texto puede estar en un servidor, y el otro en otro servidor.
+
+El documento es simplemente texto que nuestro navegador (del cliente) nos muestra.
+La página hace una petición para obtener el html, a un servidor. Y el servidor, cuando recibe
+la petición de x documento, éste se lo devuelve.
+
+Ésto fue avanzando, y se añadió la opción de meter javascript en html.
+Pero cosas como login y pass no funcionan bien usando javascript, 
+por lo que se ideó la idea de tener un servidor web (HTPP, Apache, etc) junto a una 
+base de datos (MySQL, etc).
+
+Y en qué lenguaje está el servidor web? PHP, Python, Perl, Java, C, etc.
+Perl, Python y PHP tienen algo en común: Son interpretados (es decir, se van
+interpretando línea por línea) mientras que el resto son compilados.
+
+Desventajas del lenguaje interpretado: Va a ir mas lento.
+Ventajas: Se puede modificar rápidamente.
+
+Si tenemos una web con 1000000000 usuarios simultáneos, está claro que 
+un lenguaje interpretado es mejor, ya que no hace falta recompilar todo.
+Otra ventaja es su facilidad de sintaxis.
+
+Por lo tanto, PHP, Python y Perl son los reyes de las aplicaciones web.
+
+Como mucho código se repetía, se idearon los frameworks, de los cuales hay
+muchísimos.
+
+
+
+Tenemos nuestra A (Apache), M (MySQL/MariaDB) y P (PHP/Python/Perl).
+Qué sale? AMP. Nuestro LAMP server. Linux Apache MySQL/MariaDB PHP/Python/Perl.
+
+Qué pasa a día de hoy? Que se usa como alternativa NoRDMB, que se suele entender
+como NoSQL. NoSQL no define tablas, si no documentos con una serie de campos.
+
+Respecto a los lenguajes, ahora para desarrollo web se lleva 
+javascript en el servidor: NodeJS.
+
+
+
+
+
+
+
+
+
+
+
+
+Bueno, vamos a empezar la práctica. Consistirá en instalar un LAMP en ubuntu.
+
+Vamos a irnos a ubuntu.
+Para instalar los tres servicios de manera transparente, usamos sudo tasksel.
+Seleccionamos LAMP. Por cierto, caerá en el examen qué significa LAMP.
+
+Si pone que la instalación falló, es problema de red seguramente. 
+
+ifdown enp0s3, ifupenp0s3, systemctl restart networking y listo.
+
+
+La desventaja de usar tasksel es que no elegimos qué versión de Apache o PHP 
+usa. Tampoco es demasiado grave.
+
+
+En la instalación, nos pedirá contraseña para el usuario root de MySQL.
+
+Podemos comprobar que funciona con curl localhost. Esto nos intentará
+conectar a localhost, y devolver el código de localhost.
+
+Si lo usamos, vemos que funciona. También podemos usar
+systemctl status apache(usar tab para que autocomplete apache2.blablabla)
+
+Para comprobar que la base de datos está ok, status mysql (status mysqld en centos)
+
+mysql -u root -p
+Ponemos el pass, y nos da la bienvenida. Por lo que funciona.
+
+Como comprobamos PHP?
+php -a sirve para entrar en modo interactivo. Si entra, funciona.
+
+
+No hemos tocado nada de puertos por que tasksel nos lo activa (hace automático
+lo que tenga que hacer). Pero no siempre... si no funciona, hay que hacer:
+
+ufw allow 80
+
+con ufw status vemos como va la cosa.
+
+
+Si nos metemos desde cualquier navegador a la ip del servidor, debería salirnos
+la web de Apache2 Ubuntu Default Page (It works!)
+
+
+
+
+Todo esto ha sido para ubuntu. Vamos a verlo en centos.
+
+
+Lo suyo es ir componente a componente instalando cada elemento, que es
+lo que vamos a hacer en centos.
+
+
+yum search apache para ver que apaches hay. Salen mil cosas, vamos a hacer grep.
+yum search apache | grep server y  nos salen muchas menos.
+
+Vemos httpd-devel.... En la descripción no sale algo de Apache y HTTP
+search httpd | grep server y encontramos el mismo, entre otros.
+
+yum search httpd | more 
+
+Y vemos httpd.x86_64: Apache HTTP Server.
+
+Tanto para hacer yum install httpd 
+
+Funciona? systemctl status httpd y vemos que está cargado pero inactivo,
+y vemos la palabra disabled también por ahí. Ésto significa que si reiniciamos
+la máquina, se desabilitará.
+
+systemctl enable httpd (pregunta de examen)
+
+curl localhost... hay algo que no va bien. 
+
+A ver si es el cortafuegos (aunque teoricamente a localhost no le afecta)
+firewall-cmd --add-service=http
+
+pero sigue dando error.
+
+firewall-cmd --permanent --add-port=80/tcp
+
+sigue sin funcionar.
+
+ip addr y nos salen cosas raras
+
+resulta que el tio tiene la interfaz desconfigurada
+
+
+
+Y ya funciona.
+
+
+curl localhost y le va ok.
+
+
+
+
+Continuamos
+
+
+
+yum search mariadb y lo buscamos.
+
+yum install mariadb
+
+
+...pero así instalamos sólo el cliente
+
+
+yum search mariadb | grep server y sólo nos sale uno. Lo instalamos también.
+
+
+
+
+systemctl status mariadb
+
+y vemos lo que antes, que está inactivo
+
+
+systemctl start mariadb
+systemctl enable mariadb
+
+
+
+ponemos mysql y vemos que funciona. Pero no nos pide ni contraseña, hay que ponersela
+mysql_secure_installation para instalar (pregunta de examen)
+
+Y ponemos la contraseña
+
+
+borramos el usuario anonimo? Pues si
+
+Disallow root login remotely? Mejor poner yes, por seguridad
+
+mysql -u root -p
+
+y vemos que funciona
+
+
+
+
+
+vamos a instalar php.
+
+
+yum search php | grep 
+
+
+yum install php
+
+
+php -a para interactivo, a ver si funciona. Y funciona.
+
+
+Hemos terminado? No. A pesar de estar en las mismas condiciones que ubuntu,
+no funciona (a pesar de que podemos meternos en localhost). Nos falta crear una
+web dinámica.
+
+mysql_connect... buscamos en php.net un ejemplo de mysql_connect y lo copiamos
+con 
+cd /var/www/html/
+cat index.html
+pegamos en la terminal el código y hacemos > index.html.
+
+¿Dónde estamos ejecutando el código? En el servidor. Es posible pregunta.
+
+Editamos el archivo con vi y donde pone nombre de usuario ponemos root, y
+donde pone pass ponemos la pass. Esto en términos de seguridad es una burrada,
+pero no hay tiempo para hacerlo bien.
+
+
+Nos vamos a algun navegador, y ponemos 192..../index.php
+
+Y no funciona. Pantalla blanca. Pulsamos f12 y vemos la cabecera, y
+vemos que el script no funca.
+
+
+Es por que el apache no lo está interpretando.
+vi /etc/httpd/conf/httpd.conf
+
+Y  en <IfModule dir_module>
+
+detras de index.html ponemos index.php con una coma entre ellos.
+
+
+systemctl restart httpd
+
+ahora tampoco funciona, pero da otro error. curl 192.../index.php y da error
+
+con index.php -I vemos que hay internal server error.
+
+
+php index.php y no nos encuentra la función mysql_connect. 
+Lo que pasa es que falta una biblioteca.
+
+
+yum search mysql | grep php
+
+instalamos el paquete php-mysql.... 
+yum install php-mysql
+
+sigue sin funcionar
+
+
+Usando php index.php sí que funciona
+
+Pregunta de examen... SELinux nos peta. 
+
+setsebool -P httpd_can_network_connect_db on
+
+Es un bool que ponemos a true. Es una pregunta de examen.
+
+systemctl restart httpd. Por que hemos tocado cosas de selinux. Es otra pregunta
+de examen.
+
+
+
+Y ya, nos metemos en la página desde el navegador, y funciona. 
+Su puta madre menos mal.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

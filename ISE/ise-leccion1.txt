@@ -1,0 +1,99 @@
+P1
+usamos 16.11
+
+ubuntu 16.04 introduce system-dev como novedad respecto a ubuntu 14.04
+
+fedora está apoyada por red-hat, no se qué de centOS (informarse), red-hat adquirió centOS
+
+para mirar manuales de centOS 7, hay que mirar la de red-hat 7, ya que centOS sólo tiene manuales hasta la 5.
+
+centOS es de las mejores
+
+
+
+buscar significado de siglas raid, y concepto.
+
+raid da seguridad respecto a los datos, y eficiencia para obtenerlos.
+
+raid1 es cuando un bloque se copia en dos discos, por si falla uno.
+raid0 es cuando un bloque se parte en dos, y cada parte va a un disco. Sirve cuando una información se puede construir a partir del resto.
+
+LVM es Logical Volume Manager, es decir, gestor de volúmenes lógicos. 
+
+
+muchos pv (phisical volume) se pueden agrupar en un grupo de volúmenes, el cual se puede dividir en volúmenes lógicos
+
+Crear ubuntu-server:
+
+tenemos que crear /home, /, /boot y swad. Las opciones iniciales, por defecto todas.
+
+hay que ir a configuracion, almacenamiento, y en vacio poner el ubuntu-server.
+
+creamos un nuevo disco duro, de 8 gb también (en sata).
+
+arrancamos
+
+
+
+contraseña q hay que poner: practicas,ISE
+no ciframos carpeta personal
+
+buscar significado FDE
+
+particionado manual:
+tenemos sda y sdb, es decir, dos discos.
+vamos a crear una tabla de particion para cada uno. Esto se hace dando intro a cada uno de los discos.
+
+ahora tenemos varios "configurar". primero:
+configurar raid por software. crear un dispositivo md. raid1. numero de dispositivos activos: 2. libres: 0.
+seleccionamos ambos discos activos para el array RAID1, con la barra espaciadora.
+le damos a terminar.
+
+volvemos a los "configurar", y tenemos una nueva línea de dispositivo RAID1.
+
+
+diferencias raid hardware y raid software (probablemente caiga en el examen):  
+en raidhw la orden de escribir en disco a y b lo manda la controladora. en raidsw la orden la manda la cpu. en raidhw es más rápido en escritura y eso, mayor coste. El humanware de raidsw es más alto que de raidhw. en raidhw hay menos posibilidades de que algo vaya mal (cortes de luz y otros fallos). De todas maneras, buscarlo en internet.
+
+
+configurar lvm. creamos un grupo de volumenes con cualquier nombre. seleccionamos md0 y continuamos. ahora tenemos un vol fisico en uso y un grupo de volumenes. ahora creamos 4 volumenes logicos en ese grupo.
+primero boot, con 200mb. la imagen del kernel irá aquí (creo que ocupan sobre 25mb, pero como podemos tener varias, le ponemos 200mb).
+repetimos para home, raiz y swap, con 800mb, 6 gb y el doble de la ram, respectivamente.
+
+ya tenemos 4 volumenes logicos.
+
+terminamos.
+
+volvemos a los "configurar".
+
+deberiamos tener 4 lvm, un disp raid1, y dos scsi.
+
+configuramos volumenes cifrados. le damos a create encrypted volumes. no podemos activar todavia por que no hay todavia. vamos a cifrar home, raiz y swap. boot no, por que grub no permite activar un volumen cifrado. grub2, si. Pero aqui usamos grub. un truco de seguridad es llevarte el boot en un usb, asi nadie arranca huehuehue.
+swap hay que cifrarlo por si se apaga el pc que no se pueda acceder a esa informacion (recordemos que es como ram pero no volatil).
+
+ahora tenemos una serie de opciones que podriamos ajustar, sobretodo para swap. Se podria mejorar el comportamiento de swap, poniendo una longitud de clave menor para que sea menos costoso descifrar.
+
+no tocamos nada y terminamos de definir.
+
+finish (no activamos). nos pedira 6 veces la frase de contraseña de cifrado. poner practicas,ISO.
+
+
+ahora tenemos los volumenes cifrados.
+
+nos vamos a los 200mb de boot, y damos intro.
+
+utilizar como: ext4, aunque se podria usar ext3 y ext2. punto de montaje: /boot. el resto de opciones, por defecto. terminamos.
+
+Exactamente igual para el resto excepto swap, que se pone area de intercambio. Ponemos sus anclajes respectivos.
+
+bajamos y pulsamos en finalizar particionado etc
+
+
+No instalamos por defecto ninguna actualizacion.
+
+
+dejamos seleccionado standard system utility.
+
+instalamos grub en el registro principal de arranque. nos lo instalamos en sda, es decir, solo en uno de los discos. Que pasa? Que si se rompe sda, no podemos reiniciar... Por suerte tenemos raid1.
+
+
